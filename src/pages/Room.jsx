@@ -14,12 +14,33 @@ const Room = () => {
   useEffect(() => {
     getMessages();
 
-    client.subscribe(
+    const unsubscribe = client.subscribe(
       `databases.${DATABASE_ID}.collections.${COLLECTION_ID_MESSAGES}.documents`,
       (response) => {
-        console.log(response);
+        if (
+          response.events.includes(
+            "databases.*.collections.*.documents.*.create"
+          )
+        ) {
+          setMessages((prevMessages) => [response.payload, ...prevMessages]);
+        }
+
+        if (
+          response.events.includes(
+            "databases.*.collections.*.documents.*.delete"
+          )
+        ) {
+          setMessages((prevMessages) =>
+            prevMessages.filter((msg) => msg.$id !== response.payload.$id)
+          );
+        }
       }
     );
+
+    // clean up function
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   const getMessages = async () => {
@@ -45,15 +66,15 @@ const Room = () => {
       payload
     );
 
-    setMessages((prevMessages) => [response, ...prevMessages]);
+    // setMessages((prevMessages) => [response, ...prevMessages]);
     setMessageBody("");
   };
 
   const deleteMessage = async (message_id) => {
     databases.deleteDocument(DATABASE_ID, COLLECTION_ID_MESSAGES, message_id);
-    setMessages((prevMessages) =>
-      prevMessages.filter((msg) => msg.$id !== message_id)
-    );
+    // setMessages((prevMessages) =>
+    //   prevMessages.filter((msg) => msg.$id !== message_id)
+    // );
   };
 
   return (

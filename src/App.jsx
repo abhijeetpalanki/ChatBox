@@ -1,12 +1,24 @@
-import "./App.css"
-import Room from "./pages/Room"
+import "./App.css";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { AuthProvider } from "./utils/AuthContext";
+import PrivateRoutes from "./components/PrivateRoutes";
+import Login from "./pages/Login";
+import Room from "./pages/Room";
 
 const App = () => {
   return (
-    <>
-      <Room />
-    </>
-  )
-}
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          <Route path="/login" element={<Login />} />
 
-export default App
+          <Route element={<PrivateRoutes />}>
+            <Route path="/" element={<Room />} />
+          </Route>
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
+  );
+};
+
+export default App;
