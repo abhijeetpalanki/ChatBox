@@ -15,6 +15,7 @@ const Login = () => {
     if (user) {
       navigate("/");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleInputChange = (e) => {
